@@ -9,13 +9,13 @@
     <description>LineaProCDV</description>
     <license>MIT</license>
     <keywords>lineapro,citronium</keywords>
-    <repo>https://github.com/ttatarinov/lineapro-phonegap-plugin.git</repo>
+    <repo>https://github.com/dmackerman/lineapro-phonegap-plugin.git</repo>
     <issue></issue>
-    
+
     <js-module src="www/LineaProCDV.js" name="LineaProCDV">
         <clobbers target="LineaProCDV" />
     </js-module>
-    
+
     <!-- ios -->
     <platform name="ios">
         <config-file target="config.xml" parent="/*">
@@ -23,16 +23,16 @@
                 <param name="ios-package" value="LineaProCDV" />
             </feature>
         </config-file>
-        
+
         <header-file src="src/ios/LineaProCDV.h" />
         <header-file src="src/ios/DTDevices.h" />
         <source-file src="src/ios/LineaProCDV.m" />
-        
+
         <source-file src="src/ios/libdtdev.a" framework="true" compiler-flags="-fno-objc-arc"/>
-        
+
         <framework src="ExternalAccessory.framework" />
-        
-        
+
+
         <config-file target="*-Info.plist" parent="UISupportedExternalAccessoryProtocols">
           <array>
     		<string>com.datecs.linea.pro.msr</string>
@@ -44,5 +44,5 @@
 
     </platform>
 
-    
+
 </plugin>
