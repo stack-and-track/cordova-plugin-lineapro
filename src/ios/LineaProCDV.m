@@ -17,46 +17,46 @@
 @implementation LineaProCDV
 
 -(void) scannerConect:(NSString*)num {
-
+    
     NSString *jsStatement = [NSString stringWithFormat:@"reportConnectionStatus('%@');", num];
     [self.webView stringByEvaluatingJavaScriptFromString:jsStatement];
-
+    
 }
 
 -(void) scannerBattery:(NSString*)num {
-
+    
     int percent;
     float voltage;
-
+    
 	if([dtdev getBatteryCapacity:&percent voltage:&voltage error:nil])
     {
         NSString *status = [NSString stringWithFormat:@"Bat: %.2fv, %d%%",voltage,percent];
-
+        
         // send to web view
         NSString *jsStatement = [NSString stringWithFormat:@"reportBatteryStatus('%@');", status];
         [self.webView stringByEvaluatingJavaScriptFromString:jsStatement];
-
+        
     }
 }
 
 -(void) scanPaymentCard:(NSString*)num {
-
+    
     NSString *jsStatement = [NSString stringWithFormat:@"onSuccessScanPaymentCard('%@');", num];
     [self.webView stringByEvaluatingJavaScriptFromString:jsStatement];
 	[self.viewController dismissViewControllerAnimated:YES completion:nil];
-
+    
 }
 
 - (void)initDT:(CDVInvokedUrlCommand*)command
 {
     CDVPluginResult* pluginResult = nil;
-
+    
     if (!dtdev) {
         dtdev = [DTDevices sharedDevice];
         [dtdev addDelegate:self];
         [dtdev connect];
     }
-
+    
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];
 }
 
@@ -82,7 +82,7 @@
 
 - (void)connectionState: (int)state {
     NSLog(@"connectionState: %d", state);
-
+    
     switch (state) {
 		case CONN_DISCONNECTED:
 		case CONN_CONNECTING:
@@ -93,7 +93,7 @@
 			break;
 		}
 	}
-
+    
     NSString* retStr = [ NSString stringWithFormat:@"LineaProCDV.connectionChanged(%d);", state];
     [[super webView] stringByEvaluatingJavaScriptFromString:retStr];
 }
@@ -114,36 +114,36 @@
     NSLog(@"firmwareUpdateProgress: phase - %d, percent - %d", phase, percent);
 }
 
-// - (void) magneticCardData: (NSString *) track1 track2:(NSString *) track2 track3:(NSString *) track3 {
-//     NSLog(@"magneticCardData: track1 - %@, track2 - %@, track3 - %@", track1, track2, track3);
-//     NSDictionary *card = [dtdev msProcessFinancialCard:track1 track2:track2];
-//     if(card && [card objectForKey:@"accountNumber"]!=nil && [[card objectForKey:@"expirationYear"] intValue]!=0)
-//     {
-//         NSLog(@"magneticCardData (full info): accountNumber - %@, cardholderName - %@, expirationYear - %@, expirationMonth - %@, serviceCode - %@, discretionaryData - %@, firstName - %@, lastName - %@", [card objectForKey:@"accountNumber"], [card objectForKey:@"cardholderName"], [card objectForKey:@"expirationYear"], [card objectForKey:@"expirationMonth"], [card objectForKey:@"serviceCode"], [card objectForKey:@"discretionaryData"], [card objectForKey:@"firstName"], [card objectForKey:@"lastName"]);
-//     }
-//     NSString* retStr = [ NSString stringWithFormat:@"LineaProCDV.onMagneticCardData('%@', '%@', '%@');", track1, track2, track3];
-//     [[super webView] stringByEvaluatingJavaScriptFromString:retStr];
-// }
+- (void) magneticCardData: (NSString *) track1 track2:(NSString *) track2 track3:(NSString *) track3 {
+    NSLog(@"magneticCardData: track1 - %@, track2 - %@, track3 - %@", track1, track2, track3);
+    NSDictionary *card = [dtdev msProcessFinancialCard:track1 track2:track2];
+    if(card && [card objectForKey:@"accountNumber"]!=nil && [[card objectForKey:@"expirationYear"] intValue]!=0)
+    {
+        NSLog(@"magneticCardData (full info): accountNumber - %@, cardholderName - %@, expirationYear - %@, expirationMonth - %@, serviceCode - %@, discretionaryData - %@, firstName - %@, lastName - %@", [card objectForKey:@"accountNumber"], [card objectForKey:@"cardholderName"], [card objectForKey:@"expirationYear"], [card objectForKey:@"expirationMonth"], [card objectForKey:@"serviceCode"], [card objectForKey:@"discretionaryData"], [card objectForKey:@"firstName"], [card objectForKey:@"lastName"]);
+    }
+    NSString* retStr = [ NSString stringWithFormat:@"LineaProCDV.onMagneticCardData('%@', '%@', '%@');", track1, track2, track3];
+    [[super webView] stringByEvaluatingJavaScriptFromString:retStr];
+}
 
-// - (void) magneticCardEncryptedData: (int) encryption tracks:(int) tracks data:(NSData *) data {
-//     NSLog(@"magneticCardEncryptedData: encryption - %d, tracks - %d, data - %@", encryption, tracks, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-// }
+- (void) magneticCardEncryptedData: (int) encryption tracks:(int) tracks data:(NSData *) data {
+    NSLog(@"magneticCardEncryptedData: encryption - %d, tracks - %d, data - %@", encryption, tracks, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+}
 
-// - (void) magneticCardEncryptedData: (int) encryption tracks:(int) tracks data:(NSData *) data track1masked:(NSString *) track1masked track2masked:(NSString *) track2masked track3:(NSString *) track3 {
-//     NSLog(@"magneticCardEncryptedData: encryption - %d, tracks - %d, track3 - %@, track1masked - %@, track2masked - %@, track3 - %@", encryption, tracks, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], track1masked, track2masked, track3);
-// }
+- (void) magneticCardEncryptedData: (int) encryption tracks:(int) tracks data:(NSData *) data track1masked:(NSString *) track1masked track2masked:(NSString *) track2masked track3:(NSString *) track3 {
+    NSLog(@"magneticCardEncryptedData: encryption - %d, tracks - %d, track3 - %@, track1masked - %@, track2masked - %@, track3 - %@", encryption, tracks, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding], track1masked, track2masked, track3);
+}
 
-// - (void) magneticCardEncryptedRawData: (int) encryption data:(NSData *) data {
-//     NSLog(@"magneticCardEncryptedRawData: encryption - %d, data - %@", encryption, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-// }
+- (void) magneticCardEncryptedRawData: (int) encryption data:(NSData *) data {
+    NSLog(@"magneticCardEncryptedRawData: encryption - %d, data - %@", encryption, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+}
 
-// - (void) magneticCardRawData: (NSData *) tracks {
-//     NSLog(@"magneticCardRawData: data - %@", [[NSString alloc] initWithData:tracks encoding:NSUTF8StringEncoding]);
-// }
+- (void) magneticCardRawData: (NSData *) tracks {
+    NSLog(@"magneticCardRawData: data - %@", [[NSString alloc] initWithData:tracks encoding:NSUTF8StringEncoding]);
+}
 
-// - (void) magneticJISCardData: (NSString *) data {
-//     NSLog(@"magneticJISCardData: data - %@", data);
-// }
+- (void) magneticJISCardData: (NSString *) data {
+    NSLog(@"magneticJISCardData: data - %@", data);
+}
 
 - (void) paperStatus: (BOOL) present {
     NSLog(@"paperStatus: present - %d", present);
@@ -239,7 +239,7 @@
     NSString* substrLicense = @"DAQ";
     NSString* license = [LineaProCDV getPDF417ValueByCode:codesArr code: substrLicense];
     NSLog(@"%@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@ %@", dateBirth, name, lastName, eye, state, city, height, weight, gender, hair, expires, license);
-
+    
     NSString* rawCodesArrJSString = [LineaProCDV generateStringForArrayEvaluationInJS:codesArr];
     //LineaProCDV.onBarcodeData(scanId, dob, state, city, expires, gender, height, weight, hair, eye)
     NSString* retStr = [ NSString stringWithFormat:@"var rawCodesArr = %@; LineaProCDV.onBarcodeData(rawCodesArr, '%@', '%@', '%@', '%@', '%@', '%@', '%@', '%@', '%@', '%@', '%@', '%@');", rawCodesArrJSString, license, dateBirth, state, city, expires, gender, height, weight, hair, eye, name, lastName];
@@ -257,7 +257,6 @@
 - (void) bluetoothDeviceDiscovered: (NSString *) address name:(NSString *) name {
     NSLog(@"bluetoothDeviceDiscovered: address - %@, name - @name", name);
 }
-
 - (NSString *) bluetoothDevicePINCodeRequired: (NSString *) address name:(NSString *) name {
     NSLog(@"bluetoothDevicePINCodeRequired: address - %@, name - @name", name);
     return address;
@@ -271,5 +270,7 @@
 - (void) bluetoothDiscoverComplete: (BOOL) success {
     NSLog(@"bluetoothDiscoverComplete: success - %d", success);
 }
+
+
 
 @end

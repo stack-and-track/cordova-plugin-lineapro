@@ -1,67 +1,51 @@
-var argscheck = require('cordova/argscheck'),
-    channel = require('cordova/channel'),
-    utils = require('cordova/utils'),
-    exec = require('cordova/exec'),
-    cordova = require('cordova');
+var exec = require('cordova/exec');
 
- function LineaProCDV() {
-    this.results = [];
-    this.connCallback = null;
-    this.errorCallback = null;
-    this.cancelCallback = null;
-    this.cardDataCallback = null;
-    this.barcodeCallback = null;
+var LineaProCDV = {
 
-}
+    // results: [],
+    barcodeCb: null,
+    connectionCb: null,
+    errorCb: null,
+    cancelCb: null,
 
+    init: function(connectionCb, barcodeCb, cancelCb, errorCb) {
+        LineaProCDV.connectionCb = connectionCb;
+        LineaProCDV.cancelCb = cancelCb;
+        LineaProCDV.barcodeCb = barcodeCb;
+        LineaProCDV.errorCb = errorCb;
+        exec(null, errorCb, "LineaProCDV", "initDT", []);
+        console.log('----------- init() ----------------');
+    },
 
-LineaProCDV.prototype.initDT = function(connectionCallback, cardCallback, barcCallback, cancelCallback, errorCallback) {
-    this.results = [];
-    this.connCallback = connectionCallback;
-    this.cardDataCallback = cardCallback;
-    this.barcodeCallback = barcCallback;
-    exec(null, errorCallback, "LineaProCDV", "initDT", []);
+    barcodeStart: function() {
+        exec(null, null, "LineaProCDV", "startBarcode", []);
+        console.log('----- barcodeStart -----');
+    },
+
+    barcodeStop: function() {
+        exec(null, null, "LineaProCDV", "stopBarcode", []);
+        console.log('----- barcodeStop -----');
+    },
+
+    connectionChanged: function(state) {
+        LineaProCDV.connectionCb(state);
+        console.log('----- connectionChanged -----');
+        console.log('----- state -----:', state);
+    },
+
+    // override the initialized callback with a new one.
+    setBarcodeCallback: function(callback) {
+        LineaProCDV.barcodeCb = callback;
+        console.log('----- setBarcodeCallback -----');
+    },
+
+    onBarcodeData: function(data, type) {
+        LineaProCDV.barcodeCb({
+            data: data[0],
+            type: type
+        });
+    }
+
 };
 
-LineaProCDV.prototype.barcodeStart = function() {
-    exec(null, null, "LineaProCDV", "startBarcode", []);
-};
-
-LineaProCDV.prototype.barcodeStop = function() {
-    exec(null, null, "LineaProCDV", "stopBarcode", []);
-};
-
-LineaProCDV.prototype.connectionChanged = function(state) {
-    this.connCallback(state);
-};
-
-LineaProCDV.prototype.setBarcodeCallback = function(_barcodeCallback) {
-    this.barcodeCallback = _barcodeCallback
-}
-
-// LineaProCDV.prototype.onMagneticCardData = function(track1, track2, track3) {
-//     this.cardDataCallback(track1 + track2 + track3);
-//     this.barcodeStart();
-// };
-
-LineaProCDV.prototype.onBarcodeData = function(rawCodesArr, scanId, dob, state, city, expires, gender, height, weight, hair, eye, firstName, lastName) {
-    var data = {
-               rawCodesArr: rawCodesArr,
-               scanId: scanId,
-               dob: dob,
-               state: state,
-               city: city,
-               expires: expires,
-               gender: gender,
-               height: height,
-               weight: weight,
-               hair: hair,
-               eye: eye,
-               firstName: firstName,
-               lastName: lastName
-               };
-    this.barcodeCallback(data);
-};
-
-
-module.exports = new LineaProCDV();
+module.exports = LineaProCDV;
