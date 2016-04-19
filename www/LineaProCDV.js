@@ -35,6 +35,10 @@ LineaProCDV.prototype.connectionChanged = function(state) {
     this.connCallback(state);
 };
 
+LineaProCDV.prototype.setBarcodeCallback = function(_barcodeCallback) {
+    this.barcodeCallback = _barcodeCallback
+}
+
 // LineaProCDV.prototype.onMagneticCardData = function(track1, track2, track3) {
 //     this.cardDataCallback(track1 + track2 + track3);
 //     this.barcodeStart();
